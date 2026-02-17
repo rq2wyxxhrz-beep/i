@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>인피니트 전곡 소트</title>
+
+<style>
+body{
+  background:#ffffff;
+  font-family:'돋움',sans-serif;
+  text-align:center;
+}
+
+#mainTable{
+  font-size:12px;
+  font-family:'돋움',sans-serif;
+  text-align:center;
+  vertical-align:middle;
+  width:410px;
+  margin:auto;
+  border-collapse:separate;
+  border-spacing:10px 5px;
+}
+
+#leftField, #rightField{
+  width:120px;
+  height:150px;
+  border:1px solid #000;
+  cursor:pointer;
+  vertical-align:middle;
+}
+
+.middleField{
+  width:120px;
+  height:70px;
+  border:1px solid #000;
+  cursor:pointer;
+}
+
+#resultField{
+  margin-top:30px;
+}
+</style>
+
+<script>
+var namMember = [
+"∞","다시 돌아와","She's Back","날개","붙박이 별","맡겨",
+"Evolution","BTD (Before The Dawn)","Can U Smile","Hysterie",
+"마음으로.. (Voice Of My Heart)","몰라","Nothing's Over","Shot",
+"Over The Top","내꺼하자","3분의 1","Tic Toc","Julia","Amazing",
+"Real Story","Paradise","Cover Girl","하얀 고백 (Lately)",
+"ALWAYS OPEN","환상그녀","몬스터 타임","함께","눈물만","INFINITIZE",
+"추격자","Feel So Bad","그 해 여름","니가 좋다","With...",
+"Welcome To Our Dream","Man In Love (남자가 사랑할때)",
+"이보다 좋을 순 없다.","그리움이 닿는 곳에","Beautiful",
+"60초 (INFINITE Ver.)","불편한 진실","Destiny","Inception",
+"너에게 간다","엄마","Request","Season 2","Last Romeo",
+"Follow Me","로시난테","숨 좀 쉬자","Memories","나란 사람",
+"Reflex","소나기","Back","Diamond","Dilemma","24時間",
+"Just Another Lonely Night","Betting","Bad","Moonlight",
+"발걸음","마주보며 서 있어","러브레터","엔딩을 부탁해",
+"Can't Get Over You","Love of My Life","For You",
+"그 해 여름 (두 번째 이야기)","D.N.A","Eternity",
+"태풍 (The Eye)","AIR","One Day","True Love","고마워",
+"Zero","Toki","After Dark","Waiting For The Moment","Begin",
+"Tell Me","Synchronise","No More","기도 (메텔의 슬픔)",
+"왜 날","분다","I Hate","Begin Again","CLOCK","Intro : 13",
+"New Emotions","시차","I Got You","Find Me","Flower",
+"Heat it Up","Dangerous","너의 모든 게 다 좋아",
+"Umbrella","볼 수 있어 (Sad Loop)",
+"여전히 아름다워 (Where U R)"
+];
+
+var lstMember = [];
+var parent = [];
+var equal = [];
+var rec = [];
+
+var cmp1, cmp2;
+var head1, head2;
+var nrec;
+var numQuestion;
+var totalSize;
+var finishSize;
+var finishFlag;
+
+function initList(){
+  var n = 0, mid, i;
+
+  lstMember[n] = [];
+  for(i=0;i<namMember.length;i++) lstMember[n][i]=i;
+  parent[n]=-1;
+  totalSize=0;
+  n++;
+
+  for(i=0;i<lstMember.length;i++){
+    if(lstMember[i].length>=2){
+      mid = Math.ceil(lstMember[i].length/2);
+      lstMember[n] = lstMember[i].slice(0,mid); parent[n]=i; totalSize+=lstMember[n].length; n++;
+      lstMember[n] = lstMember[i].slice(mid); parent[n]=i; totalSize+=lstMember[n].length; n++;
+    }
+  }
+
+  for(i=0;i<namMember.length;i++) rec[i]=0;
+  nrec=0;
+  for(i=0;i<=namMember.length;i++) equal[i]=-1;
+
+  cmp1=lstMember.length-2;
+  cmp2=lstMember.length-1;
+  head1=0; head2=0;
+  numQuestion=1;
+  finishSize=0;
+  finishFlag=0;
+}
+
+function sortList(flag){
+  if(finishFlag) return;
+
+  if(flag<0){
+    rec[nrec++] = lstMember[cmp1][head1++];
+    finishSize++;
+  } else if(flag>0){
+    rec[nrec++] = lstMember[cmp2][head2++];
+    finishSize++;
+  } else {
+    rec[nrec++] = lstMember[cmp1][head1++];
+    equal[rec[nrec-1]] = lstMember[cmp2][head2];
+    rec[nrec++] = lstMember[cmp2][head2++];
+    finishSize+=2;
+  }
+
+  while(head1==lstMember[cmp1].length && head2<lstMember[cmp2].length){
+    rec[nrec++] = lstMember[cmp2][head2++];
+    finishSize++;
+  }
+  while(head2==lstMember[cmp2].length && head1<lstMember[cmp1].length){
+    rec[nrec++] = lstMember[cmp1][head1++];
+    finishSize++;
+  }
+
+  if(head1==lstMember[cmp1].length && head2==lstMember[cmp2].length){
+    for(var i=0;i<rec.length;i++) lstMember[parent[cmp1]][i]=rec[i];
+    lstMember.pop(); lstMember.pop();
+    cmp1-=2; cmp2-=2;
+    head1=0; head2=0;
+    rec=[]; nrec=0;
+  }
+
+  if(cmp1<0){
+    showResult(); finishFlag=1;
+  } else showImage();
+}
+
+function showImage(){
+  document.getElementById("battleNumber").innerHTML="Battle No."+numQuestion++;
+  document.getElementById("leftField").innerHTML=namMember[lstMember[cmp1][head1]];
+  document.getElementById("rightField").innerHTML=namMember[lstMember[cmp2][head2]];
+}
+
+function showResult(){
+  var str="<ol>";
+  for(var i=0;i<lstMember[0].length;i++){
+    str+="<li>"+namMember[lstMember[0][i]]+"</li>";
+  }
+  str+="</ol>";
+  document.getElementById("resultField").innerHTML=str;
+}
+
+window.onload=function(){
+  initList();
+  showImage();
+};
+</script>
+</head>
+
+<body>
+<table id="mainTable">
+<tr>
+<td id="battleNumber" colspan="3"></td>
+</tr>
+<tr>
+<td id="leftField" onclick="sortList(-1)"></td>
+<td class="middleField" onclick="sortList(0)">둘 다 좋다</td>
+<td id="rightField" onclick="sortList(1)"></td>
+</tr>
+<tr>
+<td></td>
+<td class="middleField" onclick="sortList(0)">둘 다 싫다</td>
+<td></td>
+</tr>
+</table>
+
+<div id="resultField"></div>
+</body>
+</html>
